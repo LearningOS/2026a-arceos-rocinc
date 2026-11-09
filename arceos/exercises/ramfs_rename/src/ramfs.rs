@@ -1,5 +1,8 @@
 extern crate alloc;
 
+#[path = "../../../axfs_ramfs/src/lib.rs"]
+mod axfs_ramfs;
+
 use alloc::sync::Arc;
 use axfs_ramfs::RamFileSystem;
 use axfs_vfs::VfsOps;

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use axfs_vfs::{VfsError, VfsNodeType, VfsResult};
 
-use crate::*;
+use super::*;
 
 fn test_ramfs_ops(devfs: &RamFileSystem) -> VfsResult {
     const N: usize = 32;
@@ -119,6 +119,14 @@ fn test_ramfs() {
     test_get_parent(&ramfs).unwrap();
 
     let root = ramfs.root_dir();
+    assert_eq!(root.rename("f1", "f1_renamed"), Ok(()));
+    assert_eq!(root.clone().lookup("f1").err(), Some(VfsError::NotFound));
+    assert!(root.clone().lookup("f1_renamed").is_ok());
+    assert_eq!(root.rename("f1_renamed", "f1"), Ok(()));
+    assert_eq!(root.rename("foo/f3", "foo/f3_renamed"), Ok(()));
+    assert!(root.clone().lookup("foo/f3_renamed").is_ok());
+    assert_eq!(root.rename("foo/f3_renamed", "foo/f3"), Ok(()));
+
     assert_eq!(root.remove("f1"), Ok(()));
     assert_eq!(root.remove("//f2"), Ok(()));
     assert_eq!(root.remove("f3").err(), Some(VfsError::NotFound));

@@ -1,12 +1,14 @@
+extern crate alloc;
+
 use alloc::collections::BTreeMap;
 use alloc::sync::{Arc, Weak};
 use alloc::{string::String, vec::Vec};
 
 use axfs_vfs::{VfsDirEntry, VfsNodeAttr, VfsNodeOps, VfsNodeRef, VfsNodeType};
 use axfs_vfs::{VfsError, VfsResult};
-use spin::RwLock;
 
-use crate::file::FileNode;
+use super::file::FileNode;
+use super::sync::RwLock;
 
 /// The directory node in the RAM filesystem.
 ///
@@ -43,7 +45,6 @@ impl DirNode {
     /// Creates a new node with the given name and type in this directory.
     pub fn create_node(&self, name: &str, ty: VfsNodeType) -> VfsResult {
         if self.exist(name) {
-            log::error!("AlreadyExists {}", name);
             return Err(VfsError::AlreadyExists);
         }
         let node: VfsNodeRef = match ty {
@@ -65,6 +66,13 @@ impl DirNode {
             }
         }
         children.remove(name);
+        Ok(())
+    }
+
+    pub fn rename_node(&self, src_name: &str, dst_name: &str) -> VfsResult {
+        let mut children = self.children.write();
+        let node = children.remove(src_name).ok_or(VfsError::NotFound)?;
+        children.insert(dst_name.into(), node);
         Ok(())
     }
 }
@@ -118,7 +126,6 @@ impl VfsNodeOps for DirNode {
     }
 
     fn create(&self, path: &str, ty: VfsNodeType) -> VfsResult {
-        log::debug!("create {:?} at ramfs: {}", ty, path);
         let (name, rest) = split_path(path);
         if let Some(rest) = rest {
             match name {
@@ -142,7 +149,6 @@ impl VfsNodeOps for DirNode {
     }
 
     fn remove(&self, path: &str) -> VfsResult {
-        log::debug!("remove at ramfs: {}", path);
         let (name, rest) = split_path(path);
         if let Some(rest) = rest {
             match name {
@@ -163,6 +169,39 @@ impl VfsNodeOps for DirNode {
         } else {
             self.remove_node(name)
         }
+    }
+
+    fn rename(&self, src_path: &str, dst_path: &str) -> VfsResult {
+        let (src_name, src_rest) = split_path(src_path);
+        if let Some(src_rest) = src_rest {
+            let (_, dst_rest) = split_path(dst_path);
+            let dst_rest = dst_rest.unwrap_or(dst_path);
+            return match src_name {
+                "" | "." => self.rename(src_rest, dst_rest),
+                ".." => self
+                    .parent()
+                    .ok_or(VfsError::NotFound)?
+                    .rename(src_rest, dst_rest),
+                _ => self
+                    .children
+                    .read()
+                    .get(src_name)
+                    .cloned()
+                    .ok_or(VfsError::NotFound)?
+                    .rename(src_rest, dst_rest),
+            };
+        }
+        let dst_name = dst_path.trim_matches('/').rsplit('/').next().unwrap_or("");
+        if src_name.is_empty()
+            || src_name == "."
+            || src_name == ".."
+            || dst_name.is_empty()
+            || dst_name == "."
+            || dst_name == ".."
+        {
+            return Err(VfsError::InvalidInput);
+        }
+        self.rename_node(src_name, dst_name)
     }
 
     axfs_vfs::impl_vfs_dir_default! {}
