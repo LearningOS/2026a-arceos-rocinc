@@ -2,8 +2,8 @@
   "schema": 1,
   "courseId": 2078,
   "repository": "LearningOS/2026a-arceos-rocinc",
-  "commit": "e7ff9b7e69dd74f6a26c26a85729368c8f090ceb",
-  "score": 100,
+  "commit": "022827137128d9e3d3f5825183cbaf22deca18ed",
+  "score": 200,
   "totalScore": 600,
   "exercises": [
     {
@@ -16,8 +16,8 @@
     {
       "name": "ramfs_rename",
       "max": 100,
-      "score": 0,
-      "status": "fail",
+      "score": 100,
+      "status": "pass",
       "exitCode": 0
     },
     {
@@ -50,9 +50,9 @@
     }
   ],
   "student": "rocinc",
-  "runId": "42548764650",
+  "runId": "42556025742",
   "runAttempt": "1",
   "upload": {
-    "status": "accepted"
+    "status": "pending"
   }
 }
