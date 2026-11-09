@@ -2,8 +2,8 @@
   "schema": 1,
   "courseId": 2078,
   "repository": "LearningOS/2026a-arceos-rocinc",
-  "commit": "778124f45734a5402d66404bca54dec9667bc8c7",
-  "score": 300,
+  "commit": "633510a92a217e7b15ce5ca58df4dee0150a922b",
+  "score": 400,
   "totalScore": 600,
   "exercises": [
     {
@@ -30,9 +30,9 @@
     {
       "name": "support_hashmap",
       "max": 100,
-      "score": 0,
-      "status": "fail",
-      "exitCode": 2
+      "score": 100,
+      "status": "pass",
+      "exitCode": 0
     },
     {
       "name": "sys_map",
@@ -45,14 +45,14 @@
       "name": "simple_hv",
       "max": 100,
       "score": 0,
-      "status": "fail",
-      "exitCode": 0
+      "status": "timeout",
+      "exitCode": 124
     }
   ],
   "student": "rocinc",
-  "runId": "42558393887",
+  "runId": "42568122576",
   "runAttempt": "1",
   "upload": {
-    "status": "accepted"
+    "status": "pending"
   }
 }
