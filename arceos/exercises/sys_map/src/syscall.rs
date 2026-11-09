@@ -8,6 +8,7 @@ use axtask::current;
 use axtask::TaskExtRef;
 use axhal::paging::MappingFlags;
 use arceos_posix_api as api;
+use memory_addr::{align_up_4k, MemoryAddr, VirtAddr, VirtAddrRange};
 
 const SYS_IOCTL: usize = 29;
 const SYS_OPENAT: usize = 56;
@@ -131,16 +132,43 @@ fn handle_syscall(tf: &TrapFrame, syscall_num: usize) -> isize {
     ret
 }
 
-#[allow(unused_variables)]
 fn sys_mmap(
     addr: *mut usize,
     length: usize,
     prot: i32,
     flags: i32,
     fd: i32,
-    _offset: isize,
+    offset: isize,
 ) -> isize {
-    unimplemented!("no sys_mmap!");
+    syscall_body!(sys_mmap, {
+        if length == 0 {
+            return Err(LinuxError::EINVAL);
+        }
+        let curr = current();
+        let mut aspace = curr.task_ext().aspace.lock();
+        let aligned_len = align_up_4k(length);
+        let hint = VirtAddr::from(addr as usize).align_down_4k();
+        let limit = VirtAddrRange::from_start_size(aspace.base(), aspace.size());
+        let start_vaddr = aspace
+            .find_free_area(hint, aligned_len, limit)
+            .ok_or(LinuxError::ENOMEM)?;
+
+        let map_flags = MappingFlags::from(MmapProt::from_bits_truncate(prot));
+        aspace.map_alloc(start_vaddr, aligned_len, map_flags, true)?;
+
+        let map_flags_bits = MmapFlags::from_bits_truncate(flags);
+        if !map_flags_bits.contains(MmapFlags::MAP_ANONYMOUS) && fd >= 0 {
+            let mut buf = alloc::vec![0u8; length];
+            if offset > 0 {
+                api::sys_lseek(fd, offset as _, 0);
+            }
+            let file = api::get_file_like(fd)?;
+            let _ = file.read(&mut buf)?;
+            aspace.write(start_vaddr, &buf)?;
+        }
+
+        Ok(start_vaddr.as_usize())
+    })
 }
 
 fn sys_openat(dfd: c_int, fname: *const c_char, flags: c_int, mode: api::ctypes::mode_t) -> isize {
