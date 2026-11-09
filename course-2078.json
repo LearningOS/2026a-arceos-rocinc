@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "courseId": 2078,
+  "repository": "LearningOS/2026a-arceos-rocinc",
+  "commit": "e7ff9b7e69dd74f6a26c26a85729368c8f090ceb",
+  "score": 100,
+  "totalScore": 600,
+  "exercises": [
+    {
+      "name": "print_with_color",
+      "max": 100,
+      "score": 100,
+      "status": "pass",
+      "exitCode": 0
+    },
+    {
+      "name": "ramfs_rename",
+      "max": 100,
+      "score": 0,
+      "status": "fail",
+      "exitCode": 0
+    },
+    {
+      "name": "alt_alloc",
+      "max": 100,
+      "score": 0,
+      "status": "fail",
+      "exitCode": 0
+    },
+    {
+      "name": "support_hashmap",
+      "max": 100,
+      "score": 0,
+      "status": "fail",
+      "exitCode": 2
+    },
+    {
+      "name": "sys_map",
+      "max": 100,
+      "score": 0,
+      "status": "fail",
+      "exitCode": 0
+    },
+    {
+      "name": "simple_hv",
+      "max": 100,
+      "score": 0,
+      "status": "fail",
+      "exitCode": 0
+    }
+  ],
+  "student": "rocinc",
+  "runId": "42548764650",
+  "runAttempt": "1",
+  "upload": {
+    "status": "pending"
+  }
+}
