@@ -68,11 +68,14 @@ fn prepare_vm_pgtable(ept_root: PhysAddr) {
 }
 
 fn run_guest(ctx: &mut VmCpuRegisters) -> bool {
+    use axhal::arch::{local_irq_restore, local_irq_save_and_disable};
+    let flags = local_irq_save_and_disable();
     unsafe {
         _run_guest(ctx);
     }
-
-    vmexit_handler(ctx)
+    let ret = vmexit_handler(ctx);
+    local_irq_restore(flags);
+    ret
 }
 
 #[allow(unreachable_code)]
@@ -148,6 +151,8 @@ fn prepare_guest_context(ctx: &mut VmCpuRegisters) {
     let mut sstatus = sstatus::read();
     sstatus.set_spp(sstatus::SPP::Supervisor);
     ctx.guest_regs.sstatus = sstatus.bits();
+    CSR.sie
+        .read_and_clear_bits(csrs::traps::interrupt::SUPERVISOR_TIMER);
     // Return to entry to start vm.
     ctx.guest_regs.sepc = VM_ENTRY;
 }
