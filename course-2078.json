@@ -2,7 +2,7 @@
   "schema": 1,
   "courseId": 2078,
   "repository": "LearningOS/2026a-arceos-rocinc",
-  "commit": "5b1fae7b49bdf77ce3c487228e429eacab2f1fc4",
+  "commit": "b70f29cb6a684ab89f4c2f94259750f9c3e6df89",
   "score": 500,
   "totalScore": 600,
   "exercises": [
@@ -45,14 +45,14 @@
       "name": "simple_hv",
       "max": 100,
       "score": 0,
-      "status": "fail",
-      "exitCode": 0
+      "status": "timeout",
+      "exitCode": 124
     }
   ],
   "student": "rocinc",
-  "runId": "42645741663",
+  "runId": "42818619547",
   "runAttempt": "1",
   "upload": {
-    "status": "accepted"
+    "status": "pending"
   }
 }
